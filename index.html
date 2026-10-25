@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VLMWT</title>
+<style>
+:root{--ink:#0d0b0b;--panel:#171313;--line:#2e2626;--blood:#c1121f;--bone:#ebe5d8;--mute:#8a807c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--bone);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:28px 18px 10px;text-align:center;position:relative;overflow:hidden;border-bottom:3px solid var(--blood)}
+header::before{content:"喰種";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 150px/1 Georgia,serif;color:#1d1616;z-index:0}
+header *{position:relative;z-index:1}
+h1{margin:0 0 14px;font:800 clamp(34px,9vw,58px)/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.14em}
+header p{margin:6px 0 14px;color:var(--mute)}
+nav{display:flex;justify-content:center;gap:8px;padding:10px;position:sticky;top:0;background:var(--ink);z-index:5}
+button,select,input,textarea{font:inherit;color:var(--bone);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 10px}
+button{cursor:pointer}
+button:hover,button:focus-visible{border-color:var(--blood)}
+:focus-visible{outline:2px solid var(--blood);outline-offset:2px}
+nav button.on,.red{background:var(--blood);border-color:var(--blood);color:#fff}
+main{max-width:1000px;margin:0 auto;padding:12px 14px 60px}
+section{display:none}section.on{display:block}
+h2{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;margin:18px 0 10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.row input{flex:1;min-width:150px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;flex-direction:column}
+.card img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:#000}
+.card .b{padding:8px;display:flex;flex-direction:column;gap:6px;flex:1}
+.card h3{margin:0;font-size:14px;line-height:1.3}
+.card select,.card textarea{width:100%;font-size:13px;padding:5px}
+.card textarea{resize:vertical;min-height:50px}
+.st{font-size:22px;letter-spacing:2px;cursor:pointer;color:var(--line);user-select:none}
+.st b{font-weight:400}.st b.f{color:var(--blood)}
+.pick{cursor:pointer}.pick:hover{border-color:var(--blood)}
+.x{background:none;border:0;color:var(--mute);padding:0;text-align:left;font-size:13px}
+.msg{color:var(--mute);margin:8px 0}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+td,th{padding:8px 6px;border-bottom:1px solid var(--line);text-align:left}
+.big{font:800 34px system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--blood)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:13px;color:var(--mute);margin-bottom:2px}
+label+*{width:100%}
+dialog{background:var(--panel);color:var(--bone);border:2px solid var(--blood);border-radius:6px;width:92%;max-width:560px;max-height:88vh;padding:0;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.8)}
+.dl{display:flex;gap:14px;padding:16px}.dl img{width:110px;align-self:flex-start;border-radius:4px;aspect-ratio:2/3;object-fit:cover}
+.dl h3{margin:0 0 4px;font-size:20px}.dl p{margin:6px 0;white-space:pre-wrap}
+nav{flex-wrap:wrap}
+.bn{height:140px;background:#1d1616 center/cover;border-radius:4px;margin-top:8px}
+.avb{width:84px;height:84px;border-radius:50%;object-fit:cover;border:3px solid var(--blood);margin:-42px 0 0 14px;background:#000}
+.card img.av2{width:64px;aspect-ratio:1;border-radius:50%;margin:10px auto 0}
+.cmt{padding:8px 0;border-bottom:1px solid var(--line)}
+@media(max-width:480px){.grid{grid-template-columns:repeat(2,1fr)}header::before{font-size:100px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <h1>VLMWT</h1>
+</header>
+<nav>
+  <button class="on" data-t="a">Anime</button>
+  <button data-t="s">Sensibilità</button>
+  <button data-t="u">Profili</button>
+  <button data-t="c">Account</button>
+  <button data-t="d">Backup</button>
+</nav>
+<main>
+
+<section id="a" class="on">
+  <h2>Cerca un anime</h2>
+  <div class="row"><input id="q" placeholder="Es. Tokyo Ghoul" aria-label="Cerca anime"><button class="red" id="go">Cerca</button></div>
+  <div id="res" class="grid"></div>
+  <div id="rm" class="msg"></div>
+  <h2>La mia lista</h2>
+  <div class="row"><select id="flt" aria-label="Filtra"><option value="">Tutti</option><option>Da guardare</option><option>Sto guardando</option><option>Finito</option><option>Da rivedere</option></select></div>
+  <div id="lst" class="grid"></div>
+  <div class="row" id="pg" style="justify-content:center;align-items:center"></div>
+</section>
+
+<section id="s">
+  <h2>Converti la sensibilità</h2>
+  <div class="two">
+    <div><label for="g1">Gioco di partenza</label><select id="g1"></select></div>
+    <div><label for="g2">Gioco di arrivo</label><select id="g2"></select></div>
+    <div><label for="s1">La tua sensibilità</label><input id="s1" type="number" step="any" value="1"></div>
+    <div><label for="d1">DPI di partenza</label><input id="d1" type="number" value="800"></div>
+    <div></div>
+    <div><label for="d2">DPI di arrivo</label><input id="d2" type="number" value="800"></div>
+  </div>
+  <p class="msg">Sensibilità da usare nel gioco di arrivo</p>
+  <div class="big" id="out">-</div>
+  <div class="msg" id="cm"></div>
+  <div class="row"><button class="red" id="sv">Salva questa sens (gioco di partenza)</button></div>
+  <h2>Le mie sens salvate</h2>
+  <table><thead><tr><th>Gioco</th><th>Sens</th><th>DPI</th><th>cm/360</th><th></th></tr></thead><tbody id="tb"></tbody></table>
+  <p class="msg">I valori sono approssimati: controlla sempre con un test in gioco.</p>
+</section>
+
+<section id="d">
+  <h2>Backup</h2>
+  <p class="msg">I dati restano nel browser di questo dispositivo. Esporta un file per non perderli o per portarli sul telefono.</p>
+  <div class="row"><button class="red" id="ex">Esporta file</button><button id="im">Importa file</button><input type="file" id="fi" accept=".json" hidden></div>
+  <div class="msg" id="bm"></div>
+</section>
+
+<section id="u"><h2>Profili</h2><div id="us" class="grid"></div><div id="vw"></div></section>
+<section id="c"><h2>Account</h2>
+  <div id="lo"><div class="row"><input id="au" placeholder="Nome utente" autocomplete="username"><input id="ap" type="password" placeholder="Password (min. 8 caratteri)" autocomplete="current-password"></div>
+  <div class="row"><button class="red" id="lg">Accedi</button><button id="rg">Crea account</button></div>
+  <p><button class="x" id="fg">Password dimenticata?</button></p>
+  <div id="rs" style="display:none"><div class="row"><input id="ru" placeholder="Nome utente"><input id="rc" placeholder="Codice di recupero"></div><div class="row"><input id="rp" type="password" placeholder="Nuova password (min. 8)"><button class="red" id="rb">Cambia password</button></div></div></div>
+  <div id="li" style="display:none"><div class="bn" id="ban"></div>
+  <div class="two" style="margin-top:10px"><div><label for="nm">Nome visibile</label><input id="nm" maxlength="30"></div><div></div>
+  <div><label for="ph">Foto profilo</label><input id="ph" type="file" accept="image/*"></div><div><label for="bf">Banner</label><input id="bf" type="file" accept="image/*"></div></div>
+  <div class="row"><button class="red" id="ps">Salva profilo</button><button id="out2">Esci</button></div>
+  <p class="msg">Il tuo profilo pubblico: <span id="lk"></span><br>La tua lista anime (stati, voti e commenti) è visibile a tutti e si aggiorna da sola.</p></div>
+  <div class="msg" id="am"></div></section>
+</main>
+<dialog id="dlg"><div class="dl"><img id="di" alt=""><div><h3 id="dh"></h3><div class="msg" id="dm"></div><p id="dg"></p></div></div><div style="padding:0 16px 16px"><p id="dy"></p><p class="msg" id="du"></p><button class="red" id="dc">Chiudi</button></div></dialog>
+<script>
+const GAMES={"Valorant":0.07,"FragPunk":0.05556,"CS2 / CS:GO":0.022,"Apex Legends":0.022,"Overwatch 2":0.0066,"Call of Duty / Warzone":0.0066,"Fortnite (%)":0.005555,"Rainbow Six Siege":0.00573};
+/* Per aggiungere un gioco: "Nome":yaw, (il valore yaw si trova su mouse-sensitivity.com) */
+const STATI=["Da guardare","Sto guardando","Finito","Da rivedere"];
+let TK=localStorage.getItem("tk")||"",ME=localStorage.getItem("me")||"",SY;
+let D={anime:[],sens:{}};
+try{const r=JSON.parse(localStorage.getItem("rifugio")||"null");if(r)D=Object.assign(D,r)}catch(e){}
+const save=()=>{try{localStorage.setItem("rifugio",JSON.stringify(D))}catch(e){}if(TK){clearTimeout(SY);SY=setTimeout(sync,1500)}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function go(t){
+  document.querySelectorAll("nav button,section").forEach(e=>e.classList.remove("on"));
+  const b=document.querySelector('nav button[data-t="'+t+'"]');if(b)b.classList.add("on");$(t).classList.add("on");
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{go(b.dataset.t);if(b.dataset.t==="u"){location.hash="";utenti()}if(b.dataset.t==="c")stato()});
+
+/* ANIME */
+let found=[];
+async function viaJikan(q){
+  const r=await fetch("https://api.jikan.moe/v4/anime?limit=10&sfw=true&q="+encodeURIComponent(q));
+  if(!r.ok)throw new Error("Jikan "+r.status);
+  return (await r.json()).data||[];
+}
+async function viaAniList(q){
+  const query="query($q:String){Page(perPage:10){media(search:$q,type:ANIME,sort:SEARCH_MATCH){id title{romaji english} coverImage{large} episodes seasonYear averageScore genres description(asHtml:false)}}}";
+  const r=await fetch("https://graphql.anilist.co",{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({query,variables:{q}})});
+  if(!r.ok)throw new Error("AniList "+r.status);
+  const j=await r.json();
+  return j.data.Page.media.map(m=>({mal_id:"al"+m.id,title:m.title.english||m.title.romaji,images:{jpg:{image_url:m.coverImage.large}},episodes:m.episodes,year:m.seasonYear,score:m.averageScore?(m.averageScore/10).toFixed(1):null,genres:(m.genres||[]).map(n=>({name:n})),synopsis:(m.description||"").replace(/<[^>]+>/g," ")}));
+}
+async function cerca(){
+  const q=$("q").value.trim();if(!q)return;
+  $("rm").textContent="Cerco...";$("res").innerHTML="";
+  try{
+    found=await Promise.any([viaAniList(q),viaJikan(q)])
+    $("rm").textContent=found.length?"Tocca una copertina per aggiungerla alla lista. Nella lista, tocca copertina o titolo per i dettagli.":"Nessun risultato. Prova con il titolo inglese o giapponese.";
+    $("res").innerHTML=found.map((a,i)=>`<div class="card pick" data-i="${i}" tabindex="0"><img src="${esc(a.images.jpg.image_url)}" alt="" loading="lazy"><div class="b"><h3>${esc(a.title)}</h3></div></div>`).join("");
+  }catch(e){$("rm").textContent="Ricerca non riuscita ("+(e&&e.message?e.message:"errore di rete")+"). Se usi Brave, spegni gli Shields per questo sito (icona del leone) e riprova."}
+}
+$("go").onclick=cerca;$("q").onkeydown=e=>{if(e.key==="Enter")cerca()};
+$("res").onclick=e=>{
+  const c=e.target.closest(".pick");if(!c)return;
+  const a=found[c.dataset.i];
+  if(D.anime.some(x=>x.id===a.mal_id)){$("rm").textContent="È già nella tua lista.";return}
+  D.anime.unshift({id:a.mal_id,t:a.title,img:a.images.jpg.image_url,st:"Da guardare",stars:0,note:"",ep:a.episodes,yr:a.year,sc:a.score,gen:(a.genres||[]).map(g=>g.name).join(", "),syn:a.synopsis||""});
+  save();draw();$("rm").textContent="Aggiunto: "+a.title+". Lo trovi qui sotto in La mia lista.";
+};
+let PAG=1;const PER=24;
+function draw(){
+  const f=$("flt").value,F=D.anime.filter(a=>!f||a.st===f),N=Math.max(1,Math.ceil(F.length/PER));
+  PAG=Math.min(Math.max(PAG,1),N);
+  const L=F.slice((PAG-1)*PER,PAG*PER);
+  $("pg").innerHTML=N>1?`<button id="pp"${PAG<=1?" disabled":""}>Indietro</button><span class="msg">Pagina ${PAG} di ${N}</span><button id="pn"${PAG>=N?" disabled":""}>Avanti</button>`:"";
+  $("lst").innerHTML=L.length?L.map(a=>`<div class="card" data-id="${a.id}"><img src="${esc(a.img)}" alt="" loading="lazy"><div class="b"><h3>${esc(a.t)}</h3>
+  <select class="stsel" aria-label="Stato">${STATI.map(s=>`<option${s===a.st?" selected":""}>${s}</option>`).join("")}</select>
+  <div class="st" aria-label="Voto">${[1,2,3,4,5].map(n=>`<b data-n="${n}" class="${n<=a.stars?"f":""}">★</b>`).join("")}</div>
+  <textarea class="nt" placeholder="Commento">${esc(a.note)}</textarea>
+  <button class="x">Rimuovi</button></div></div>`).join(""):`<p class="msg">Lista vuota. Cerca un anime qui sopra per iniziare.</p>`;
+}
+$("flt").onchange=()=>{PAG=1;draw()};
+$("pg").onclick=e=>{if(e.target.id==="pp"){PAG--;draw();$("lst").scrollIntoView()}if(e.target.id==="pn"){PAG++;draw();$("lst").scrollIntoView()}};
+const find=el=>D.anime.find(a=>a.id==el.closest(".card").dataset.id);
+$("lst").onchange=e=>{if(e.target.classList.contains("stsel")){find(e.target).st=e.target.value;save()}};
+$("lst").oninput=e=>{if(e.target.classList.contains("nt")){find(e.target).note=e.target.value;save()}};
+$("lst").onclick=e=>{
+  const c=e.target.closest(".card");if(!c)return;
+  if(e.target.tagName==="IMG"||e.target.tagName==="H3")apri(find(e.target));
+  if(e.target.dataset.n){const a=find(e.target),n=+e.target.dataset.n;a.stars=a.stars===n?0:n;save();draw()}
+  if(e.target.classList.contains("x")&&confirm("Rimuovere dalla lista?")){D.anime=D.anime.filter(a=>a.id!=c.dataset.id);save();draw()}
+};
+
+function apri(a){
+  $("di").src=a.img;$("dh").textContent=a.t;
+  $("dm").textContent=[a.yr,a.ep?a.ep+" episodi":"",a.sc?"Punteggio "+a.sc:""].filter(Boolean).join("  |  ");
+  $("dg").textContent=a.gen||"";
+  $("dy").textContent=a.syn||"Dettagli non disponibili. Rimuovi l'anime e aggiungilo di nuovo per scaricarli.";
+  $("du").textContent="Stato: "+a.st+(a.stars?"  |  Voto: "+"★".repeat(a.stars):"")+(a.note?"\nCommento: "+a.note:"");
+  $("dlg").showModal();
+}
+$("dc").onclick=()=>$("dlg").close();
+$("dlg").onclick=e=>{if(e.target===$("dlg"))$("dlg").close()};
+/* SENS */
+const cm360=(s,y,d)=>360/(s*y*d)*2.54;
+["g1","g2"].forEach((id,i)=>$(id).innerHTML=Object.keys(GAMES).map((g,j)=>`<option${j===i?" selected":""}>${g}</option>`).join(""));
+function calc(){
+  const s=+$("s1").value,d1=+$("d1").value,d2=+$("d2").value,y1=GAMES[$("g1").value],y2=GAMES[$("g2").value];
+  if(!(s>0&&d1>0&&d2>0)){$("out").textContent="-";$("cm").textContent="";return}
+  const c=cm360(s,y1,d1),n=360/(c/2.54)/(y2*d2);
+  $("out").textContent=(Math.round(n*1000)/1000).toString();
+  $("cm").textContent="Uguale a "+c.toFixed(1)+" cm per girare di 360°";
+}
+["g1","g2","s1","d1","d2"].forEach(id=>$(id).oninput=calc);
+$("sv").onclick=()=>{D.sens[$("g1").value]={s:+$("s1").value,d:+$("d1").value};save();tab()};
+function tab(){
+  const k=Object.keys(D.sens);
+  $("tb").innerHTML=k.length?k.map(g=>{const v=D.sens[g];return`<tr><td>${esc(g)}</td><td>${v.s}</td><td>${v.d}</td><td>${cm360(v.s,GAMES[g]||1,v.d).toFixed(1)}</td><td><button class="x" data-g="${esc(g)}">Togli</button></td></tr>`}).join(""):`<tr><td colspan="5" class="msg">Nessuna sens salvata. Inserisci i valori e premi Salva.</td></tr>`;
+}
+$("tb").onclick=e=>{const g=e.target.dataset.g;if(g){delete D.sens[g];save();tab()}};
+
+/* BACKUP */
+$("ex").onclick=()=>{
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(D)],{type:"application/json"}));
+  a.download="rifugio-backup.json";a.click();$("bm").textContent="File esportato.";
+};
+$("im").onclick=()=>$("fi").click();
+$("fi").onchange=async e=>{
+  try{const j=JSON.parse(await e.target.files[0].text());
+    if(!Array.isArray(j.anime))throw 0;
+    D={anime:j.anime,sens:j.sens||{}};save();draw();tab();$("bm").textContent="Dati importati."}
+  catch(x){$("bm").textContent="File non valido. Scegli un file rifugio-backup.json."}
+};
+
+/* ACCOUNT E PROFILI */
+const api=async(p,b)=>{
+  const o={headers:{}};if(TK)o.headers.Authorization="Bearer "+TK;
+  if(b){o.method="POST";o.body=JSON.stringify(b)}
+  let r;try{r=await fetch("/api/"+p,o)}catch(e){throw new Error("Disponibile solo sul sito online.")}
+  const j=await r.json().catch(()=>({e:"Questa funzione è disponibile solo sul sito online."}));
+  if(!r.ok)throw new Error(j.e||"Errore "+r.status);return j;
+};
+const sync=()=>api("sync",{anime:D.anime.map(({syn,...a})=>a)}).catch(()=>{});
+const av=p=>`<img class="av2" src="${p?esc(p):"data:,"}" alt="">`;
+const img=(f,w,h)=>new Promise(res=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=w;c.height=h;const k=Math.max(w/i.width,h/i.height);c.getContext("2d").drawImage(i,(w-i.width*k)/2,(h-i.height*k)/2,i.width*k,i.height*k);res(c.toDataURL("image/jpeg",.8))};i.src=URL.createObjectURL(f)});
+function stato(){
+  $("lo").style.display=TK?"none":"block";$("li").style.display=TK?"block":"none";
+  if(TK)api("me").then(m=>{$("nm").value=m.name||"";$("ban").style.backgroundImage=m.banner?`url(${m.banner})`:"none";$("lk").textContent=location.origin+location.pathname+"#u/"+ME}).catch(e=>{$("am").textContent=e.message});
+}
+async function entra(path,body){
+  try{
+    const j=await api(path,body||{u:$("au").value.trim(),p:$("ap").value});
+    TK=j.token;ME=j.u;localStorage.setItem("tk",TK);localStorage.setItem("me",ME);$("ap").value="";
+    const S=JSON.parse((await api("user/"+ME)).anime||"[]");
+    if(S.length&&(!D.anime.length||confirm("Sul tuo account ci sono "+S.length+" anime. Sostituire la lista di questo dispositivo?"))){D.anime=S;save();draw()}else sync();
+    $("am").textContent="";stato();
+    if(j.code){const t="Codice di recupero: "+j.code;$("am").textContent=t+" (salvalo ora, non verrà più mostrato)";alert(t+"\n\nSalvalo in un posto sicuro: serve per cambiare la password se la dimentichi. Non verrà più mostrato.")}
+  }catch(e){$("am").textContent=e.message}
+}
+$("fg").onclick=()=>{$("rs").style.display=$("rs").style.display==="none"?"block":"none"};
+$("rb").onclick=()=>entra("reset",{u:$("ru").value.trim(),code:$("rc").value,p:$("rp").value});
+$("lg").onclick=()=>entra("login");$("rg").onclick=()=>entra("register");
+$("out2").onclick=()=>{TK="";ME="";localStorage.removeItem("tk");localStorage.removeItem("me");stato()};
+$("ps").onclick=async()=>{
+  try{const b={name:$("nm").value};
+    if($("ph").files[0])b.photo=await img($("ph").files[0],128,128);
+    if($("bf").files[0])b.banner=await img($("bf").files[0],800,200);
+    await api("profile",b);$("am").textContent="Profilo salvato.";stato();
+  }catch(e){$("am").textContent=e.message}
+};
+async function utenti(){
+  $("vw").innerHTML="";$("us").innerHTML='<p class="msg">Carico...</p>';
+  try{const L=await api("users");
+    $("us").innerHTML=L.length?L.map(x=>`<div class="card pick" data-u="${esc(x.u)}" tabindex="0"><div class="b" style="align-items:center;text-align:center">${av(x.photo)}<h3>${esc(x.name||x.u)}</h3><span class="msg">@${esc(x.u)}</span></div></div>`).join(""):'<p class="msg">Nessun profilo ancora. Crea il primo dalla scheda Account.</p>';
+  }catch(e){$("us").innerHTML='<p class="msg">'+esc(e.message)+'</p>'}
+}
+$("us").onclick=e=>{const c=e.target.closest("[data-u]");if(c)vedi(c.dataset.u)};
+async function vedi(u){
+  go("u");$("us").innerHTML="";$("vw").innerHTML='<p class="msg">Carico...</p>';location.hash="u/"+u;
+  try{
+    const p=await api("user/"+u),A=JSON.parse(p.anime||"[]");
+    $("vw").innerHTML=`<button class="x" id="bk">Torna ai profili</button><div class="bn" style="background-image:${p.banner?`url(${esc(p.banner)})`:"none"}"></div>
+    <div style="display:flex;gap:12px;align-items:flex-end"><img class="avb" src="${p.photo?esc(p.photo):"data:,"}" alt=""><div><h2 style="margin:0">${esc(p.name||p.u)}</h2><span class="msg">@${esc(p.u)} | ${A.length} anime</span></div></div>
+    <div class="grid" style="margin-top:12px">${A.map(a=>`<div class="card"><img src="${esc(a.img)}" alt="" loading="lazy"><div class="b"><h3>${esc(a.t)}</h3><span class="msg">${esc(a.st)}</span><div class="st">${[1,2,3,4,5].map(n=>`<b class="${n<=a.stars?"f":""}">★</b>`).join("")}</div><div class="msg">${esc(a.note)}</div></div></div>`).join("")}</div>
+    <h2>Commenti</h2>${TK?'<div class="row"><input id="ct" maxlength="300" placeholder="Scrivi un commento"><button class="red" id="cs">Invia</button></div>':'<p class="msg">Accedi dalla scheda Account per commentare.</p>'}
+    <div id="cl">${p.comments.map(c=>`<div class="cmt"><b>${esc(c.f)}</b> <span class="msg">${new Date(c.t).toLocaleDateString("it")}</span>${(c.f===ME||p.u===ME)?` <button class="x" data-d="${c.id}">Elimina</button>`:""}<div>${esc(c.x)}</div></div>`).join("")||'<p class="msg">Nessun commento.</p>'}</div>`;
+    $("bk").onclick=()=>{location.hash="";utenti()};
+    if($("cs"))$("cs").onclick=async()=>{try{await api("comment",{to:u,text:$("ct").value});vedi(u)}catch(e){alert(e.message)}};
+    $("cl").onclick=async e=>{if(e.target.dataset.d){try{await api("delcomment",{id:+e.target.dataset.d});vedi(u)}catch(x){alert(x.message)}}};
+  }catch(e){$("vw").innerHTML='<p class="msg">'+esc(e.message)+'</p>'}
+}
+draw();tab();calc();
+if(location.hash.startsWith("#u/"))vedi(decodeURIComponent(location.hash.slice(3)));
+</script>
+</body>
+</html>
